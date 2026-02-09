@@ -1,0 +1,235 @@
+@keyframes bug-wiggle {
+  0%, 100% {
+    transform: translate(-50%, -50%) rotate(-4deg);
+  }
+  50% {
+    transform: translate(-50%, -50%) rotate(4deg);
+  }
+}
+
+@keyframes bug-appear {
+  from {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+}
+
+.bug-card {
+  padding: 4px 8px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.animate-bug-wiggle {
+  animation: bug-appear 0.2s ease-out, bug-wiggle 2s ease-in-out 0.2s infinite;
+}
+
+/* Fire pit with sticks */
+.fire-pit {
+  transition: transform 0.2s ease;
+}
+
+.fire-container {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 0 12px rgba(255, 100, 0, 0.5)) drop-shadow(0 0 24px rgba(255, 60, 0, 0.3));
+}
+
+.fire-sticks {
+  position: absolute;
+  inset: 0;
+  bottom: 20px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 1;
+}
+
+.stick {
+  position: absolute;
+  font-size: 1.5rem;
+  transform-origin: bottom center;
+  filter: brightness(0.7);
+}
+
+.stick-1 { transform: rotate(-60deg) translateY(-15px); }
+.stick-2 { transform: rotate(-30deg) translateY(-20px); }
+.stick-3 { transform: rotate(0deg) translateY(-25px); }
+.stick-4 { transform: rotate(30deg) translateY(-20px); }
+.stick-5 { transform: rotate(60deg) translateY(-15px); }
+
+/* Realistic flame waves - on top of sticks */
+.fire-flames {
+  position: absolute;
+  inset: -5px;
+  bottom: 15px;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.flame {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 20px;
+  height: 50px;
+  background: linear-gradient(
+    to top,
+    #1a1a1a 0%,
+    #3d1a0a 15%,
+    #8b2500 35%,
+    #dc3d00 50%,
+    #ff6b00 65%,
+    #ff9500 80%,
+    #ffcc00 95%
+  );
+  border-radius: 50% 50% 40% 40%;
+  transform-origin: bottom center;
+  animation: flame-wave 0.8s ease-in-out infinite;
+  filter: blur(1px);
+  opacity: 0.95;
+}
+
+.flame-1 { left: 15%; animation-delay: 0s; animation-duration: 0.6s; width: 18px; height: 45px; }
+.flame-2 { left: 35%; animation-delay: 0.1s; animation-duration: 0.7s; width: 22px; height: 55px; }
+.flame-3 { left: 50%; transform: translateX(-50%); animation-delay: 0.2s; animation-duration: 0.5s; width: 24px; height: 60px; }
+.flame-4 { left: 65%; animation-delay: 0.15s; animation-duration: 0.65s; width: 20px; height: 52px; }
+.flame-5 { left: 80%; animation-delay: 0.05s; animation-duration: 0.75s; width: 18px; height: 48px; }
+.flame-6 { left: 25%; animation-delay: 0.25s; animation-duration: 0.55s; width: 16px; height: 42px; }
+.flame-7 { left: 70%; animation-delay: 0.2s; animation-duration: 0.6s; width: 17px; height: 44px; }
+
+@keyframes flame-wave {
+  0%, 100% {
+    transform: translateX(-50%) scaleX(1) scaleY(1);
+    opacity: 0.9;
+  }
+  25% {
+    transform: translateX(-50%) scaleX(1.15) scaleY(1.1) translateY(-2px);
+    opacity: 1;
+  }
+  50% {
+    transform: translateX(-50%) scaleX(0.95) scaleY(1.05);
+    opacity: 0.95;
+  }
+  75% {
+    transform: translateX(-50%) scaleX(1.1) scaleY(1.08) translateY(-3px);
+    opacity: 1;
+  }
+}
+
+.flame-1 { animation-name: flame-wave-1; }
+.flame-2 { animation-name: flame-wave-2; }
+.flame-3 { animation-name: flame-wave-3; }
+.flame-4 { animation-name: flame-wave-1; }
+.flame-5 { animation-name: flame-wave-2; }
+.flame-6 { animation-name: flame-wave-3; }
+.flame-7 { animation-name: flame-wave-1; }
+
+@keyframes flame-wave-1 {
+  0%, 100% { transform: scaleX(1) scaleY(1); opacity: 0.9; }
+  33% { transform: scaleX(1.2) scaleY(1.15); opacity: 1; }
+  66% { transform: scaleX(0.9) scaleY(1.05); opacity: 0.95; }
+}
+
+@keyframes flame-wave-2 {
+  0%, 100% { transform: scaleX(1) scaleY(1); opacity: 0.95; }
+  50% { transform: scaleX(1.1) scaleY(1.2) translateY(-4px); opacity: 1; }
+}
+
+@keyframes flame-wave-3 {
+  0%, 100% { transform: translateX(-50%) scaleX(1) scaleY(1); opacity: 0.9; }
+  25% { transform: translateX(-50%) scaleX(1.15) scaleY(1.1); opacity: 1; }
+  75% { transform: translateX(-50%) scaleX(0.95) scaleY(1.05); opacity: 0.92; }
+}
+
+/* Smooth bars */
+.bar-track {
+  background: rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.bar-fill {
+  transition: height 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: height, width;
+}
+
+/* Floating laugh emoji on kill */
+.laugh-emoji {
+  animation: laugh-pop 1.2s ease-out forwards;
+  pointer-events: none;
+}
+
+/* Laptop design */
+.laptop {
+  --laptop-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  filter: drop-shadow(0 10px 25px rgba(0, 0, 0, 0.3));
+}
+
+.screen-bezel {
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+.laptop-screen {
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+.laptop-hinge {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.laptop-base {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.laptop-key {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Mobile touch: 44px min touch targets, prevent accidental zoom */
+.touch-target {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.bugoff-logo {
+  font-family: ui-monospace, 'IBM Plex Mono', monospace;
+  letter-spacing: -0.02em;
+}
+
+.floating-nav {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.modal {
+  -webkit-overflow-scrolling: touch;
+}
+
+@keyframes laugh-pop {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(0.5);
+  }
+  20% {
+    transform: translate(-50%, -80%) scale(1.2);
+  }
+  40% {
+    transform: translate(-50%, -120%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -180%) scale(0.8);
+  }
+}
