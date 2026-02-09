@@ -1,0 +1,9 @@
+# Netlify config for BugOff (Angular SPA)
+# https://docs.netlify.com/configure-builds/file-based-configuration/
+
+[build]
+  command = "npm run build"
+  publish = "dist/bugoff.fun/browser"
+
+# _redirects in public/ is copied to publish root by Angular and handles SPA fallback:
+# /* -> /index.html 200 (so refresh and direct routes work)
