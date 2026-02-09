@@ -7,9 +7,23 @@ html, body {
   margin: 0;
   padding: 0;
   min-height: 100%;
+  overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
+}
+
+/* Hide scrollbar on desktop so mobile-style scroller isn’t visible */
+@media (min-width: 769px) {
+  body {
+    overflow: hidden;
+  }
+  .modal-about {
+    scrollbar-width: none;
+  }
+  .modal-about::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .safe-area-inset {

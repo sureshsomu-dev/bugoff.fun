@@ -210,10 +210,16 @@
 
     <!-- Destruction zone (fire / water / void / ice) -->
     <div
-      #tub
       class="fire-pit flex flex-col items-center effect-size-{{ effectSize() }} overflow-visible"
     >
-      <div class="effect-container relative" [class.effect-fire]="effectType() === 'fire'" [class.effect-water]="effectType() === 'water'" [class.effect-void]="effectType() === 'void'" [class.effect-ice]="effectType() === 'ice'">
+      <div
+        #effectContainer
+        class="effect-container relative"
+        [class.effect-fire]="effectType() === 'fire'"
+        [class.effect-water]="effectType() === 'water'"
+        [class.effect-void]="effectType() === 'void'"
+        [class.effect-ice]="effectType() === 'ice'"
+      >
         @if (effectType() === 'fire') {
           <div class="fire-sticks">
             <span class="stick stick-1">🪵</span>
@@ -336,13 +342,25 @@
           <span class="text-xs font-bold text-amber-400 text-center max-w-[140px] sm:max-w-[100px] whitespace-normal break-words leading-tight" [title]="attached.bug.typeLabel">{{ attached.bug.typeLabel }}</span>
         </div>
         <span class="text-sm font-bold text-amber-400 whitespace-nowrap">Bug health</span>
-        <div class="bug-health-sidebar w-7 sm:w-10 h-44 sm:h-64 rounded-xl overflow-hidden bar-track border-2 border-stone-600 bg-stone-800/90 flex flex-col justify-end shadow-xl">
-          <div
-            class="w-full bar-fill min-h-[6px] rounded-b-lg"
-            [class]="attached.health <= 30 ? 'bg-gradient-to-t from-red-600 to-red-400' : 'bg-gradient-to-t from-emerald-600 to-amber-400'"
-            [style.height.%]="attached.health"
-          ></div>
-        </div>
+        @if (isMobile()) {
+          <!-- Mobile only: horizontal bar (x-axis) -->
+          <div class="bug-health-bar-mobile w-32 h-4 rounded-lg overflow-hidden bar-track border-2 border-stone-600 bg-stone-800/90 flex flex-row justify-start shadow-xl">
+            <div
+              class="h-full bar-fill min-w-[4px] rounded-r-lg transition-[width] duration-75"
+              [class]="attached.health <= 30 ? 'bg-gradient-to-r from-red-600 to-red-400' : 'bg-gradient-to-r from-emerald-600 to-amber-400'"
+              [style.width.%]="attached.health"
+            ></div>
+          </div>
+        } @else {
+          <!-- Desktop only: vertical bar -->
+          <div class="bug-health-sidebar w-10 h-64 rounded-xl overflow-hidden bar-track border-2 border-stone-600 bg-stone-800/90 flex flex-col justify-end shadow-xl">
+            <div
+              class="w-full bar-fill min-h-[6px] rounded-b-lg transition-[height] duration-75"
+              [class]="attached.health <= 30 ? 'bg-gradient-to-t from-red-600 to-red-400' : 'bg-gradient-to-t from-emerald-600 to-amber-400'"
+              [style.height.%]="attached.health"
+            ></div>
+          </div>
+        }
         <span class="text-base font-bold tabular-nums text-stone-200">{{ (attached.health | number:'1.0-0') }}%</span>
       </div>
     }

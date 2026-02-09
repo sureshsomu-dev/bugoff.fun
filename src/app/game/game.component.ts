@@ -22,6 +22,8 @@ const DIP_DAMAGE_BASE = 0.4;
 const BUG_SIZES = ['small', 'medium', 'large'] as const;
 const GIANT_BUG_FIRST_DELAY_MS = 60_000;
 const GIANT_BUG_INTERVAL_MS = 60_000;
+/** Extra pixels around the fire so the bug is affected as soon as it's close */
+const BURN_ZONE_PADDING_PX = 48;
 const FUNCTIONALITY_BREAK_LABEL = 'Critical: functionality break';
 
 type BugSize = (typeof BUG_SIZES)[number] | 'giant';
@@ -63,7 +65,11 @@ const BUG_TYPES = [
   'Skeleton never loads',
   'Placeholder as label',
   'Cookie banner forever',
-  'Captcha not loading',
+  'Not working in production',
+  'Not working in QA',
+  'Data loss on refresh',
+  'Responsive alignments',
+  'Zoom text issues',
   /* Process / PM humor */
   'PM said ship it',
   'Legacy code',
@@ -183,6 +189,7 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
   private nextLaughId = 0;
   readonly burnStreak = signal(0);
   private lastBurnTime = 0;
+  private firstBurnGiantScheduled = false;
 
   readonly mouseX = signal(0);
   readonly mouseY = signal(0);
@@ -191,7 +198,7 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
   /** On mobile, show grabbed bug above the finger so it's not hidden. */
   readonly isMobile = signal(false);
   private readonly ATTACH_OFFSET_DESKTOP = 40;
-  private readonly ATTACH_OFFSET_MOBILE = 110;
+  private readonly ATTACH_OFFSET_MOBILE = 155;
 
   private nextBugId = 0;
   private gameRect: DOMRect = new DOMRect();
@@ -200,7 +207,7 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
 
   gameAreaRef = viewChild<ElementRef<HTMLElement>>('gameArea');
   screenRef = viewChild<ElementRef<HTMLElement>>('screen');
-  tubRef = viewChild<ElementRef<HTMLElement>>('tub');
+  effectContainerRef = viewChild<ElementRef<HTMLElement>>('effectContainer');
 
   readonly tick = signal(0);
 
@@ -261,7 +268,7 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
   ngOnInit(): void {
     this.sessionStartTime = Date.now();
     this.startSpawning();
-    this.startGiantBugSpawning();
+    /* Giant bug starts 1 min after first bug burn — see updateDipping() */
   }
 
   ngAfterViewInit(): void {
@@ -286,8 +293,8 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
         (this.gameRect = this.gameAreaRef()!.nativeElement.getBoundingClientRect());
       this.screenRef()?.nativeElement &&
         (this.screenRect = this.screenRef()!.nativeElement.getBoundingClientRect());
-      this.tubRef()?.nativeElement &&
-        (this.tubRect = this.tubRef()!.nativeElement.getBoundingClientRect());
+      this.effectContainerRef()?.nativeElement &&
+        (this.tubRect = this.effectContainerRef()!.nativeElement.getBoundingClientRect());
     };
     updateRects();
     const ga = this.gameAreaRef()?.nativeElement;
@@ -336,11 +343,12 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
   private isInTub(clientX: number, clientY: number): boolean {
     const t = this.tubRect;
     if (!t.width || !t.height) return false;
+    const p = BURN_ZONE_PADDING_PX;
     return (
-      clientX >= t.left &&
-      clientX <= t.right &&
-      clientY >= t.top &&
-      clientY <= t.bottom
+      clientX >= t.left - p &&
+      clientX <= t.right + p &&
+      clientY >= t.top - p &&
+      clientY <= t.bottom + p
     );
   }
 
@@ -380,6 +388,10 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     if (toRemove.length > 0) {
+      if (!this.firstBurnGiantScheduled) {
+        this.firstBurnGiantScheduled = true;
+        this.startGiantBugSpawning();
+      }
       this.stopFireSound();
       this.playKillSound();
       this.attachedBugs.set(updated.filter((a) => !toRemove.some((b) => b.id === a.bug.id)));
@@ -524,33 +536,37 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   onPointerDown(clientX: number, clientY: number): void {
-    this.ensureAudioContext();
     if (!this.isPlaying()) return;
     this.isDragging.set(true);
 
     const hit = this.hitTestScreen(clientX, clientY);
     const attached = this.attachedBugs();
 
-    if (hit && attached.length < GRAB_CAPACITY) {
-      this.playGrabSound();
-      const offsetY = this.isMobile() ? this.ATTACH_OFFSET_MOBILE : this.ATTACH_OFFSET_DESKTOP;
-      this.attachedBugs.update((list) => [
-        ...list,
-        { bug: hit, offsetY, health: 100 },
-      ]);
-    }
+    /* Unlock audio on first user gesture (required on mobile); then run logic and play sounds */
+    this.ensureAudioContext().then(() => {
+      if (hit && attached.length < GRAB_CAPACITY) {
+        this.playGrabSound();
+        const offsetY = this.isMobile() ? this.ATTACH_OFFSET_MOBILE : this.ATTACH_OFFSET_DESKTOP;
+        this.attachedBugs.update((list) => [
+          ...list,
+          { bug: hit, offsetY, health: 100 },
+        ]);
+      }
+    });
   }
 
-  private ensureAudioContext(): void {
-    if (typeof window === 'undefined') return;
+  /** Create and resume AudioContext so mobile browsers allow playback (must run in user gesture). */
+  private ensureAudioContext(): Promise<void> {
+    if (typeof window === 'undefined') return Promise.resolve();
     const Ctx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-    if (!Ctx) return;
-    if (this.audioContext?.state === 'suspended') {
-      this.audioContext.resume();
-    }
+    if (!Ctx) return Promise.resolve();
     if (!this.audioContext) {
       this.audioContext = new Ctx();
     }
+    if (this.audioContext.state === 'suspended') {
+      return this.audioContext.resume();
+    }
+    return Promise.resolve();
   }
 
   private playGrabSound(): void {

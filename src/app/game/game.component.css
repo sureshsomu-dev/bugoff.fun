@@ -743,6 +743,20 @@
   transition: none;
 }
 
+/* Mobile: horizontal health bar (x-axis) */
+.bug-health-bar-mobile.bar-track {
+  flex-direction: row;
+  justify-content: flex-start;
+}
+.bug-health-bar-mobile .bar-fill {
+  transition: width 0.08s ease-out;
+}
+@media (max-width: 640px) {
+  .bug-health-bar-mobile {
+    min-width: 128px;
+  }
+}
+
 /* Floating laugh emoji on kill */
 .laugh-emoji {
   animation: laugh-pop 1.2s ease-out forwards;
