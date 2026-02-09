@@ -75,6 +75,11 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
   readonly mouseY = signal(0);
   readonly isDragging = signal(false);
 
+  /** On mobile, show grabbed bug above the finger so it's not hidden. */
+  readonly isMobile = signal(false);
+  private readonly ATTACH_OFFSET_DESKTOP = 40;
+  private readonly ATTACH_OFFSET_MOBILE = 110;
+
   private nextBugId = 0;
   private gameRect: DOMRect = new DOMRect();
   private screenRect: DOMRect = new DOMRect();
@@ -151,7 +156,14 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
+    this.detectMobile();
     this.initGameArea();
+  }
+
+  private detectMobile(): void {
+    const coarse = window.matchMedia('(pointer: coarse)').matches;
+    const narrow = window.matchMedia('(max-width: 768px)').matches;
+    this.isMobile.set(coarse || narrow);
   }
 
   ngOnDestroy(): void {
@@ -334,7 +346,7 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
 
     const sx = ((clientX - s.left) / s.width) * 100;
     const sy = ((clientY - s.top) / s.height) * 100;
-    const hitRadius = 14; /* larger for mobile touch */
+    const hitRadius = this.isMobile() ? 20 : 14; /* larger hit area on touch */
 
     for (const bug of freeBugs) {
       const dist = Math.hypot(sx - bug.x, sy - bug.y);
@@ -351,9 +363,10 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
     const attached = this.attachedBugs();
 
     if (hit && attached.length < GRAB_CAPACITY) {
+      const offsetY = this.isMobile() ? this.ATTACH_OFFSET_MOBILE : this.ATTACH_OFFSET_DESKTOP;
       this.attachedBugs.update((list) => [
         ...list,
-        { bug: hit, offsetY: 40, health: 100 },
+        { bug: hit, offsetY, health: 100 },
       ]);
     }
   }

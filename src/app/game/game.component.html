@@ -69,6 +69,9 @@
         <li><strong class="text-amber-400/90">Grab</strong> — tap a bug on the screen</li>
         <li><strong class="text-amber-400/90">Drag</strong> — hold & move to the fire</li>
         <li><strong class="text-amber-400/90">Burn</strong> — hold in flames until health drains</li>
+        @if (isMobile()) {
+          <li class="text-amber-400/90">📱 <strong>Mobile:</strong> bug floats above your finger so you can see it while dragging.</li>
+        }
         <li>Works with mouse or touch. Lift = health pauses. 0% = bug fixed!</li>
       </ul>
     </div>
@@ -204,6 +207,9 @@
         </div>
       </div>
       <p class="text-[10px] mt-2 font-bold" [class.text-stone-500]="isDarkTheme()" [class.text-stone-600]="!isDarkTheme()">HOLD BUG HERE</p>
+      @if (isMobile()) {
+        <p class="text-[9px] mt-1 text-amber-400/80">Tap bug → drag above finger to fire</p>
+      }
     </div>
   </div>
 
