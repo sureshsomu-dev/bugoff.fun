@@ -19,20 +19,174 @@
 }
 
 .bug-card {
-  padding: 4px 8px;
-  border-radius: 10px;
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(248, 113, 113, 0.3);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  padding: 6px 10px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(248, 113, 113, 0.35);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Larger min sizes + full text visible (no truncation) */
+.bug-size-small span:first-child { font-size: 1.35rem; }
+.bug-size-small .bug-label { font-size: 10px; max-width: 140px; line-height: 1.2; }
+
+.bug-size-medium span:first-child { font-size: 1.85rem; }
+.bug-size-medium .bug-label { font-size: 12px; max-width: 160px; line-height: 1.2; }
+
+.bug-size-large span:first-child { font-size: 2.75rem; }
+.bug-size-large .bug-label { font-size: 14px; max-width: 200px; line-height: 1.2; }
+
+/* Giant bug (Functionality break) when attached */
+.bug-size-giant span:first-child { font-size: 4rem; }
+.bug-size-giant .bug-label { font-size: 1rem; max-width: 240px; }
+
+/* Mobile: slightly larger bug labels and tap-friendly hit area */
+@media (max-width: 640px) {
+  .bug-size-small .bug-label { font-size: 11px; max-width: 120px; }
+  .bug-size-medium .bug-label { font-size: 13px; max-width: 140px; }
+  .bug-size-large .bug-label { font-size: 15px; max-width: 180px; }
+}
+
+/* Bug fixes count: top center badge */
+.bug-fixes-badge {
+  padding: 8px 16px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(41, 37, 36, 0.95) 0%, rgba(28, 25, 23, 0.98) 100%);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4), 0 0 20px rgba(245, 158, 11, 0.08);
+}
+
+/* Giant bug: modal overlay with backdrop (not from laptop) */
+.giant-bug-overlay {
+  touch-action: none;
+  box-sizing: border-box;
+}
+
+.giant-bug-backdrop {
+  pointer-events: none;
+}
+
+.giant-bug-card {
+  max-width: min(92vw, 380px);
+  max-height: min(85vh, 420px);
+  box-shadow: 0 0 50px rgba(239, 68, 68, 0.25);
+  box-sizing: border-box;
+}
+
+.giant-bug-emoji {
+  font-size: clamp(4rem, 18vw, 10rem);
+  line-height: 1;
+  filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.5));
+}
+
+.giant-bug-label {
+  font-size: clamp(1rem, 4vw, 1.875rem);
+  line-height: 1.2;
+  word-break: break-word;
+}
+
+@keyframes giant-appear {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-giant-appear {
+  animation: giant-appear 0.5s ease-out forwards;
+}
+
+/* "Fixing buggg..." dying state */
+.fixing-bug-text {
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(251, 191, 36, 0.95);
+  letter-spacing: 0.05em;
+  text-shadow: 0 0 12px rgba(251, 191, 36, 0.5);
+}
+
+.fixing-dots::after {
+  content: '';
+  animation: fixing-dots 1.2s steps(4, end) infinite;
+}
+
+@keyframes fixing-dots {
+  0%, 20% { content: ''; }
+  40% { content: '.'; }
+  60% { content: '..'; }
+  80%, 100% { content: '...'; }
+}
+
+.bug-dying-glow {
+  animation: dying-glow 0.8s ease-in-out infinite;
+}
+
+@keyframes dying-glow {
+  0%, 100% { opacity: 1; filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.6)); }
+  50% { opacity: 0.85; filter: drop-shadow(0 0 14px rgba(251, 191, 36, 0.9)); }
 }
 
 .animate-bug-wiggle {
   animation: bug-appear 0.2s ease-out, bug-wiggle 2s ease-in-out 0.2s infinite;
 }
 
-/* Fire pit with sticks */
+/* Effect pit – size variants */
 .fire-pit {
   transition: transform 0.2s ease;
+}
+
+.effect-container {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+}
+
+.effect-size-small .effect-container {
+  width: 80px;
+  height: 80px;
+}
+.effect-size-small .fire-sticks .stick { font-size: 1rem; }
+.effect-size-small .flame { width: 14px; height: 36px; }
+.effect-size-small .flame-1 { width: 12px; height: 32px; }
+.effect-size-small .flame-2 { width: 16px; height: 40px; }
+.effect-size-small .flame-3 { width: 18px; height: 44px; }
+.effect-size-small .water-basin { width: 70px; height: 70px; }
+.effect-size-small .void-hole { width: 65px; height: 65px; }
+.effect-size-small .ice-block { width: 70px; height: 70px; }
+
+.effect-size-medium .effect-container {
+  width: 120px;
+  height: 120px;
+}
+
+.effect-size-large .effect-container {
+  width: 180px;
+  height: 180px;
+}
+.effect-size-large .fire-sticks .stick { font-size: 2rem; }
+.effect-size-large .flame { width: 28px; height: 72px; }
+.effect-size-large .flame-1 { width: 24px; height: 62px; }
+.effect-size-large .flame-2 { width: 30px; height: 78px; }
+.effect-size-large .flame-3 { width: 32px; height: 85px; }
+.effect-size-large .water-basin { width: 160px; height: 160px; }
+.effect-size-large .void-hole { width: 150px; height: 150px; }
+.effect-size-large .ice-block { width: 160px; height: 160px; }
+
+/* Fire */
+.effect-container.effect-fire {
+  filter: drop-shadow(0 0 12px rgba(255, 100, 0, 0.5)) drop-shadow(0 0 24px rgba(255, 60, 0, 0.3));
 }
 
 .fire-container {
@@ -152,6 +306,424 @@
   75% { transform: translateX(-50%) scaleX(0.95) scaleY(1.05); opacity: 0.92; }
 }
 
+/* ----- Destruction particles (when bug is in effect zone) ----- */
+.effect-particles {
+  position: absolute;
+  inset: -30%;
+  bottom: -20%;
+  z-index: 10;
+  pointer-events: none;
+  overflow: visible;
+}
+
+/* Fire: fog + ashes rise to top of screen (above laptop) */
+.effect-particles-fire {
+  inset: -50%;
+  bottom: -20%;
+  top: -120%;
+}
+
+/* Visible fog — drifts slowly to top like real fire smoke */
+.fire-smoke {
+  position: absolute;
+  bottom: 0;
+  left: 20%;
+  width: 65%;
+  height: 55px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(120, 110, 100, 0.7) 0%, rgba(90, 82, 75, 0.45) 35%, rgba(70, 65, 60, 0.2) 60%, transparent 80%);
+  opacity: 0;
+  filter: blur(12px);
+  animation: smoke-rise-to-top 7s ease-in-out infinite;
+}
+
+.smoke-1 { left: 18%; width: 60%; height: 50px; animation-delay: 0s; }
+.smoke-2 { left: 28%; width: 70%; height: 60px; animation-delay: 1.8s; }
+.smoke-3 { left: 22%; width: 65%; height: 55px; animation-delay: 3.6s; }
+
+@keyframes smoke-rise-to-top {
+  0% {
+    transform: translateY(0) scaleX(1);
+    opacity: 0;
+  }
+  8% {
+    opacity: 0.7;
+  }
+  35% {
+    transform: translateY(-120px) scaleX(1.2);
+    opacity: 0.55;
+  }
+  60% {
+    transform: translateY(-280px) scaleX(1.45);
+    opacity: 0.35;
+  }
+  85% {
+    transform: translateY(-450px) scaleX(1.6);
+    opacity: 0.15;
+  }
+  100% {
+    transform: translateY(-550px) scaleX(1.7);
+    opacity: 0;
+  }
+}
+
+/* Ashes — much more visible: bigger, lighter, high opacity, rise to top */
+.ash {
+  position: absolute;
+  bottom: 10%;
+  left: 50%;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #b0a9a2 0%, #8a8580 40%, #6b6560 70%, #4a4540 100%);
+  opacity: 0;
+  animation: ash-rise-to-top 6s ease-in infinite;
+  filter: blur(0.3px);
+  box-shadow: 0 0 4px rgba(140, 130, 120, 0.4);
+}
+
+.ash-1 { animation-delay: 0s; left: 42%; width: 10px; height: 10px; }
+.ash-2 { animation-delay: 0.35s; left: 55%; width: 14px; height: 14px; }
+.ash-3 { animation-delay: 0.7s; left: 48%; width: 12px; height: 12px; }
+.ash-4 { animation-delay: 1.05s; left: 58%; width: 11px; height: 11px; }
+.ash-5 { animation-delay: 1.4s; left: 40%; width: 13px; height: 13px; }
+.ash-6 { animation-delay: 1.75s; left: 52%; width: 10px; height: 10px; }
+.ash-7 { animation-delay: 2.1s; left: 46%; width: 12px; height: 12px; }
+.ash-8 { animation-delay: 2.45s; left: 50%; width: 11px; height: 11px; }
+.ash-9 { animation-delay: 2.8s; left: 44%; width: 14px; height: 14px; }
+.ash-10 { animation-delay: 3.15s; left: 54%; width: 10px; height: 10px; }
+.ash-11 { animation-delay: 3.5s; left: 51%; width: 12px; height: 12px; }
+.ash-12 { animation-delay: 3.85s; left: 47%; width: 11px; height: 11px; }
+
+@keyframes ash-rise-to-top {
+  0% {
+    transform: translate(-50%, 0) scale(1);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  25% {
+    transform: translate(calc(-50% - 8px), -80px) scale(0.98);
+    opacity: 0.95;
+  }
+  50% {
+    transform: translate(calc(-50% + 14px), -220px) scale(0.92);
+    opacity: 0.8;
+  }
+  75% {
+    transform: translate(calc(-50% - 6px), -380px) scale(0.8);
+    opacity: 0.5;
+  }
+  100% {
+    transform: translate(calc(-50% + 10px), -520px) scale(0.6);
+    opacity: 0;
+  }
+}
+
+/* Water: splash dots + expanding rings */
+.splash-dot {
+  position: absolute;
+  bottom: 15%;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.7);
+  opacity: 0;
+  animation: splash-rise 2s ease-out infinite;
+}
+
+.sd-1 { animation-delay: 0s; left: 48%; }
+.sd-2 { animation-delay: 0.3s; left: 52%; width: 5px; height: 5px; }
+.sd-3 { animation-delay: 0.6s; left: 45%; }
+.sd-4 { animation-delay: 0.9s; left: 55%; width: 7px; height: 7px; }
+.sd-5 { animation-delay: 1.2s; left: 50%; }
+.sd-6 { animation-delay: 1.5s; left: 51%; width: 5px; height: 5px; }
+
+.splash-ring {
+  position: absolute;
+  bottom: 10%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0.3);
+  opacity: 0;
+  animation: splash-ring-expand 1.8s ease-out infinite;
+}
+
+.splash-ring-2 { animation-delay: 0.9s; }
+
+@keyframes splash-rise {
+  0% { transform: translate(-50%, 0); opacity: 0; }
+  15% { opacity: 0.8; }
+  100% { transform: translate(-50%, -100px); opacity: 0; }
+}
+
+@keyframes splash-ring-expand {
+  0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0.7; }
+  100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; }
+}
+
+/* Void: dust being sucked in */
+.effect-particles-void {
+  inset: -20%;
+}
+
+.void-dust {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: rgba(167, 139, 250, 0.8);
+  opacity: 0;
+  animation: void-dust-in 2s ease-in infinite;
+}
+
+.vd-1 { animation-delay: 0s; left: 35%; top: 30%; }
+.vd-2 { animation-delay: 0.28s; left: 65%; top: 25%; }
+.vd-3 { animation-delay: 0.56s; left: 40%; top: 60%; }
+.vd-4 { animation-delay: 0.84s; left: 60%; top: 55%; }
+.vd-5 { animation-delay: 1.12s; left: 30%; top: 45%; }
+.vd-6 { animation-delay: 1.4s; left: 70%; top: 40%; }
+.vd-7 { animation-delay: 1.68s; left: 50%; top: 20%; }
+
+@keyframes void-dust-in {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(0) translateY(30px);
+    opacity: 0;
+  }
+}
+
+/* Ice: frost flakes drifting */
+.effect-particles-ice {
+  inset: -20%;
+}
+
+.frost-flake {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.75);
+  border-radius: 1px;
+  opacity: 0;
+  animation: frost-drift 2.5s ease-in-out infinite;
+  transform-origin: center;
+}
+
+.ff-1 { left: 30%; top: 80%; animation-delay: 0s; }
+.ff-2 { left: 50%; top: 75%; animation-delay: 0.35s; }
+.ff-3 { left: 70%; top: 82%; animation-delay: 0.7s; }
+.ff-4 { left: 40%; top: 70%; animation-delay: 1.05s; }
+.ff-5 { left: 60%; top: 78%; animation-delay: 1.4s; }
+.ff-6 { left: 45%; top: 85%; animation-delay: 1.75s; }
+.ff-7 { left: 55%; top: 72%; animation-delay: 2.1s; }
+.ff-8 { left: 65%; top: 88%; animation-delay: 2.45s; }
+
+@keyframes frost-drift {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0;
+  }
+  15% { opacity: 0.9; }
+  50% {
+    transform: translateY(-40px) translateX(6px) rotate(180deg);
+    opacity: 0.7;
+  }
+  100% {
+    transform: translateY(-90px) translateX(-4px) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* ----- Water effect ----- */
+.effect-container.effect-water {
+  filter: drop-shadow(0 0 16px rgba(59, 130, 246, 0.4)) drop-shadow(0 4px 20px rgba(30, 64, 175, 0.3));
+}
+
+.water-basin {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #0ea5e9 0%, #0284c7 25%, #0369a1 50%, #0c4a6e 100%);
+  box-shadow: inset 0 -8px 24px rgba(0, 0, 0, 0.4), inset 0 4px 16px rgba(255, 255, 255, 0.15);
+  animation: water-shimmer 3s ease-in-out infinite;
+}
+
+.water-waves {
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  overflow: hidden;
+  z-index: 2;
+}
+
+.wave {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 30%;
+  background: linear-gradient(180deg, transparent 0%, rgba(255, 255, 255, 0.25) 50%, transparent 100%);
+  border-radius: 50%;
+  animation: wave-motion 2s ease-in-out infinite;
+}
+
+.wave-1 { animation-delay: 0s; opacity: 0.6; }
+.wave-2 { animation-delay: 0.4s; opacity: 0.4; height: 25%; }
+.wave-3 { animation-delay: 0.8s; opacity: 0.5; height: 35%; }
+.wave-4 { animation-delay: 1.2s; opacity: 0.3; }
+.wave-5 { animation-delay: 1.6s; opacity: 0.45; height: 28%; }
+
+.bubble {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  bottom: 10%;
+  animation: bubble-rise 2.5s ease-in infinite;
+}
+
+.bubble-1 { left: 20%; animation-delay: 0s; width: 6px; height: 6px; }
+.bubble-2 { left: 45%; animation-delay: 0.5s; width: 10px; height: 10px; }
+.bubble-3 { left: 70%; animation-delay: 1s; width: 5px; height: 5px; }
+.bubble-4 { left: 35%; animation-delay: 1.8s; width: 7px; height: 7px; }
+
+@keyframes water-shimmer {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.1); }
+}
+
+@keyframes wave-motion {
+  0%, 100% { transform: scaleY(1) translateY(0); }
+  50% { transform: scaleY(1.2) translateY(-3px); }
+}
+
+@keyframes bubble-rise {
+  0% { transform: translateY(0) scale(1); opacity: 0.6; }
+  100% { transform: translateY(-120px) scale(0.3); opacity: 0; }
+}
+
+/* ----- Void effect ----- */
+.effect-container.effect-void {
+  filter: drop-shadow(0 0 20px rgba(88, 28, 135, 0.6)) drop-shadow(0 0 40px rgba(0, 0, 0, 0.8));
+}
+
+.void-hole {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, #1e1b4b 0%, #0f0a1e 40%, #000 70%);
+  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.9), 0 0 30px rgba(88, 28, 135, 0.4);
+  animation: void-pulse 2.5s ease-in-out infinite;
+}
+
+.void-particles {
+  position: absolute;
+  inset: -15px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.void-particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(167, 139, 250, 0.8);
+  left: 50%;
+  top: 50%;
+  animation: void-spiral 3s linear infinite;
+}
+
+.void-particle.p1 { animation-delay: 0s; }
+.void-particle.p2 { animation-delay: 0.6s; }
+.void-particle.p3 { animation-delay: 1.2s; }
+.void-particle.p4 { animation-delay: 1.8s; }
+.void-particle.p5 { animation-delay: 2.4s; }
+
+@keyframes void-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.02); opacity: 0.95; }
+}
+
+@keyframes void-spiral {
+  0% { transform: translate(-50%, -50%) rotate(0deg) translateY(0) scale(1); opacity: 0.8; }
+  100% { transform: translate(-50%, -50%) rotate(360deg) translateY(-80px) scale(0); opacity: 0; }
+}
+
+/* ----- Ice effect ----- */
+.effect-container.effect-ice {
+  filter: drop-shadow(0 0 18px rgba(147, 197, 253, 0.5)) drop-shadow(0 0 30px rgba(59, 130, 246, 0.25));
+}
+
+.ice-block {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  border-radius: 30% 70% 60% 40% / 40% 50% 60% 50%;
+  background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 25%, #7dd3fc 50%, #38bdf8 70%, #0ea5e9 100%);
+  box-shadow: inset 2px 2px 20px rgba(255, 255, 255, 0.8), inset -2px -2px 12px rgba(148, 163, 184, 0.3), 0 0 25px rgba(56, 189, 248, 0.3);
+  animation: ice-glow 2.5s ease-in-out infinite;
+}
+
+.ice-crystals {
+  position: absolute;
+  inset: -5px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.crystal {
+  position: absolute;
+  width: 2px;
+  height: 16px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(186, 230, 253, 0.4) 100%);
+  border-radius: 2px;
+  transform-origin: bottom center;
+  animation: crystal-sparkle 1.5s ease-in-out infinite;
+}
+
+.crystal.c1 { left: 25%; top: 20%; animation-delay: 0s; transform: rotate(-20deg); }
+.crystal.c2 { left: 75%; top: 25%; animation-delay: 0.3s; transform: rotate(15deg); }
+.crystal.c3 { left: 50%; top: 10%; animation-delay: 0.6s; transform: rotate(0deg); }
+.crystal.c4 { left: 15%; top: 50%; animation-delay: 0.2s; transform: rotate(-35deg); }
+.crystal.c5 { left: 85%; top: 55%; animation-delay: 0.5s; transform: rotate(25deg); }
+
+.frost-ring {
+  position: absolute;
+  inset: -8px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  animation: frost-breathe 2s ease-in-out infinite;
+}
+
+@keyframes ice-glow {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.15); }
+}
+
+@keyframes crystal-sparkle {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+@keyframes frost-breathe {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.02); }
+}
+
 /* Smooth bars */
 .bar-track {
   background: rgba(0, 0, 0, 0.2);
@@ -164,6 +736,11 @@
   transition: height 0.4s cubic-bezier(0.4, 0, 0.2, 1),
     width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   will-change: height, width;
+}
+
+/* Sidebar bug health: no transition — updates every frame so bar stays smooth */
+.bug-health-sidebar .bar-fill {
+  transition: none;
 }
 
 /* Floating laugh emoji on kill */
@@ -198,10 +775,42 @@
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
-/* Mobile touch: 44px min touch targets, prevent accidental zoom */
+/* Mobile: touch targets, responsive, no tap highlight */
 .touch-target {
   min-width: 44px;
   min-height: 44px;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+@media (pointer: coarse) {
+  .floating-nav button {
+    min-width: 48px;
+    min-height: 48px;
+    padding: 12px;
+  }
+  .bug-health-sidebar {
+    min-height: 120px;
+  }
+  .fire-pit {
+    touch-action: none;
+  }
+  .modal button[aria-label="Close"] {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 10px;
+  }
+}
+
+/* Narrow viewport: modals and layout */
+@media (max-width: 640px) {
+  .game-area .floating-nav {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+  .bug-fixes-badge {
+    padding: 10px 18px;
+  }
 }
 
 .bugoff-logo {
@@ -215,6 +824,65 @@
 
 .modal {
   -webkit-overflow-scrolling: touch;
+}
+
+/* About modal: white background, clear and slightly bigger text */
+.modal-about .about-content {
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  color: #44403c;
+}
+.modal-about .about-content strong {
+  color: #1c1917;
+}
+.modal-about .about-content p {
+  margin-bottom: 0.5rem;
+}
+.modal-about .about-content p:last-child {
+  margin-bottom: 0;
+}
+
+/* LOL reactions: above laptop, rise all the way to top */
+.laugh-emoji-big {
+  font-size: 2rem;
+  animation: laugh-pop-big 1.8s ease-out forwards;
+}
+.laugh-to-top {
+  animation: laugh-rise-to-top 2.2s ease-out forwards;
+}
+@media (min-width: 640px) {
+  .laugh-emoji-big { font-size: 2.5rem; }
+}
+
+@keyframes laugh-pop-big {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(0.3);
+  }
+  15% {
+    transform: translate(-50%, -70%) scale(1.4);
+  }
+  35% {
+    transform: translate(-50%, -110%) scale(1.15);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -220%) scale(0.9);
+  }
+}
+
+@keyframes laugh-rise-to-top {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(0.4);
+  }
+  12% {
+    transform: translate(-50%, -60%) scale(1.3);
+  }
+  100% {
+    opacity: 0.6;
+    transform: translate(-50%, -520%) scale(0.85);
+  }
 }
 
 @keyframes laugh-pop {

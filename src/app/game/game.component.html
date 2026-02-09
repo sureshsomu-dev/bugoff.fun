@@ -1,14 +1,24 @@
 <div
   #gameArea
-  class="fixed inset-0 w-full h-dvh h-[100dvh] min-h-[100dvh] flex overflow-hidden select-none cursor-grab transition-colors duration-300 bg-stone-900"
+  class="game-area fixed inset-0 w-full h-dvh min-h-[100dvh] flex overflow-hidden select-none cursor-grab transition-colors duration-300 bg-stone-900 safe-area-inset"
   [class.cursor-grabbing]="isDragging() && attachedBugs().length > 0"
   (mousedown)="onMouseDown($event)"
   (mouseup)="onMouseUp()"
   (mouseleave)="onPointerUpForLeave()"
   (touchstart)="onTouchStart($event)"
   (touchend)="onTouchEnd($event)"
-  style="touch-action: none; -webkit-touch-callout: none; -webkit-user-select: none;"
+  (touchcancel)="onTouchCancel($event)"
+  style="touch-action: none; -webkit-touch-callout: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent;"
 >
+  <!-- Bug fixes count: top center, prominent -->
+  <div class="bug-fixes-badge absolute top-4 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center">
+    <span class="text-[10px] sm:text-xs font-bold text-stone-500 uppercase tracking-widest">Bug fixes</span>
+    <span class="text-3xl sm:text-4xl md:text-5xl font-black tabular-nums text-amber-400 drop-shadow-[0_0_12px_rgba(245,158,11,0.4)]">{{ score() }}</span>
+    @if (burnStreak() >= 2) {
+      <span class="text-xs font-bold text-orange-400 mt-0.5 px-2 py-0.5 rounded-full bg-orange-500/20">{{ burnStreak() }}x 🔥</span>
+    }
+  </div>
+
   <!-- Logo: top-left -->
   <div class="absolute top-4 left-4 z-20">
     <h1 class="bugoff-logo text-2xl sm:text-3xl font-black tracking-tight">
@@ -17,19 +27,11 @@
     <p class="text-[10px] text-stone-400 mt-0.5 tracking-wider">BugOff by dev for devs</p>
   </div>
 
-  <!-- Floating nav: score + About + Controls -->
+  <!-- Floating nav: About + Controls -->
   <nav
     class="floating-nav absolute top-4 right-4 z-20 flex items-center gap-2 sm:gap-4 px-4 py-2.5 rounded-2xl shadow-lg backdrop-blur-md bg-stone-800/90 border border-stone-700/50"
   >
     <div class="flex items-center gap-2 sm:gap-4">
-      <span class="text-sm font-bold tabular-nums text-amber-400 px-2 py-1 rounded-lg bg-stone-900/50">
-        {{ score() }} fixed
-      </span>
-      @if (burnStreak() >= 2) {
-        <span class="text-xs font-bold text-orange-400 px-2 py-0.5 rounded-full bg-orange-500/20 animate-pulse">
-          {{ burnStreak() }}x 🔥
-        </span>
-      }
       <button
         (click)="toggleAbout(); $event.stopPropagation()"
         class="touch-target p-2.5 rounded-xl hover:bg-stone-700/80 active:scale-95 transition-all text-stone-400 hover:text-amber-400"
@@ -41,12 +43,13 @@
       </button>
       <button
         (click)="toggleSettings(); $event.stopPropagation()"
-        class="touch-target p-2.5 rounded-xl hover:bg-stone-700/80 active:scale-95 transition-all text-stone-400 hover:text-amber-400"
-        aria-label="Game controls"
+        class="touch-target flex items-center gap-1.5 p-2.5 rounded-xl hover:bg-stone-700/80 active:scale-95 transition-all text-stone-400 hover:text-amber-400"
+        aria-label="Settings"
       >
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
         </svg>
+        <span class="text-sm font-medium hidden sm:inline">Settings</span>
       </button>
     </div>
   </nav>
@@ -58,70 +61,92 @@
     >
       <div class="flex justify-between items-start mb-3">
         <h3 class="text-sm font-bold text-amber-400 flex items-center gap-2">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
-        Game Controls
-      </h3>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
+          Settings
+        </h3>
       <button (click)="toggleSettings(); $event.stopPropagation()" class="p-1 rounded-lg hover:bg-stone-700 text-stone-500 hover:text-stone-300 touch-target" aria-label="Close">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
       </div>
-      <ul class="text-[12px] text-stone-400 space-y-2">
-        <li><strong class="text-amber-400/90">Grab</strong> — tap a bug on the screen</li>
-        <li><strong class="text-amber-400/90">Drag</strong> — hold & move to the fire</li>
-        <li><strong class="text-amber-400/90">Burn</strong> — hold in flames until health drains</li>
+      <ul class="text-[12px] text-stone-400 space-y-2 mb-4">
+        <li><strong class="text-amber-400/90">Grab</strong> — tap a bug on the screen (yes, that one)</li>
+        <li><strong class="text-amber-400/90">Drag</strong> — haul it to the fire. No shortcuts.</li>
+        <li><strong class="text-amber-400/90">Burn</strong> — hold it in the zone until health hits 0%. Then rejoice.</li>
         @if (isMobile()) {
-          <li class="text-amber-400/90">📱 <strong>Mobile:</strong> bug floats above your finger so you can see it while dragging.</li>
+          <li class="text-amber-400/90">📱 <strong>Mobile:</strong> bug floats above your finger so you can actually see what you’re yeeting.</li>
         }
-        <li>Works with mouse or touch. Lift = health pauses. 0% = bug fixed!</li>
+        <li>Mouse or touch. Lift = health pauses. 0% = bug fixed. You’re welcome.</li>
       </ul>
+      <div class="border-t border-stone-700 pt-3 space-y-3">
+        <div>
+          <label class="text-xs font-bold text-amber-400/90 block mb-1.5">Effect size</label>
+          <div class="flex flex-wrap gap-2">
+            @for (opt of SIZE_OPTIONS; track opt.value) {
+              <button
+                type="button"
+                (click)="effectSize.set(opt.value); $event.stopPropagation()"
+                class="px-3 py-1.5 rounded-lg text-sm transition-all touch-target"
+                [class.bg-amber-500/30]="effectSize() === opt.value"
+                [class.text-amber-400]="effectSize() === opt.value"
+                [class.border-amber-500/50]="effectSize() === opt.value"
+                [class.border]="effectSize() === opt.value"
+                [class.bg-stone-800]="effectSize() !== opt.value"
+                [class.text-stone-400]="effectSize() !== opt.value"
+                [class.hover:bg-stone-700]="effectSize() !== opt.value"
+              >
+                {{ opt.label }}
+              </button>
+            }
+          </div>
+        </div>
+      </div>
     </div>
   }
 
   @if (showAbout()) {
     <div
-      class="modal absolute top-20 left-4 right-4 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 sm:max-w-md z-30 rounded-2xl p-6 shadow-2xl bg-stone-900/98 border border-stone-700 backdrop-blur-sm max-h-[70vh] overflow-y-auto"
+      class="modal modal-about absolute top-16 left-4 right-4 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 sm:max-w-lg z-30 rounded-2xl p-6 sm:p-8 shadow-2xl bg-white border border-stone-200 max-h-[80vh] overflow-y-auto"
       (click)="$event.stopPropagation()"
     >
-      <div class="flex justify-between items-start mb-3">
-        <h3 class="text-sm font-bold text-amber-400 flex items-center gap-2">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      <div class="flex justify-between items-start mb-4">
+        <h3 class="text-lg font-bold text-stone-800 flex items-center gap-2">
+          <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
           About BugOff
         </h3>
-        <button (click)="toggleAbout(); $event.stopPropagation()" class="p-1 rounded-lg hover:bg-stone-700 text-stone-500 hover:text-stone-300 touch-target" aria-label="Close">
+        <button (click)="toggleAbout(); $event.stopPropagation()" class="p-2 rounded-lg hover:bg-stone-100 text-stone-500 hover:text-stone-700 touch-target" aria-label="Close">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
       </div>
-      <div class="text-[13px] text-stone-400 leading-relaxed space-y-3">
-        <p>I once dreamed I was wiping out bugs — and woke up grinning. That feeling? I wanted to share it. So I built BugOff: a goofy, stress-relief game made by a dev, for devs.</p>
-        <p><strong class="text-stone-300">No real bugs hurt. No animals harmed.</strong> Just virtual icons and pixels. Grab them, drag them to the fire, watch them burn. It’s oddly satisfying.</p>
-        <p>Life’s short. Sometimes you need a silly break. This is it. Enjoy. 🔥</p>
+      <div class="about-content text-base text-stone-700 leading-relaxed space-y-4">
+        <p>One night I dreamed I was yeeting bugs into a fire. I woke up <em>grinning</em>. So I built BugOff: a ridiculous, guilt-free stress reliever for anyone who’s ever wanted to watch “404 Not Found” and “Works on my machine” burn. 🔥</p>
+        <p><strong class="text-stone-900">No real bugs or animals are harmed.</strong> Just pixels and bad vibes. Grab ’em, drag ’em to the fire, listen to the crackle. Oddly satisfying? You bet.</p>
+        <p>Life’s short. Deploy this feeling. Have a silly break. You’ve earned it.</p>
       </div>
     </div>
   }
 
-  <!-- Left bar: Dev Satisfaction (hidden on very small screens) -->
-  <div class="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-20 hidden sm:flex flex-col items-center gap-2">
-    <span class="text-[10px] font-bold -rotate-90 origin-center whitespace-nowrap -mb-1" [class.text-amber-400]="isDarkTheme()" [class.text-amber-600]="!isDarkTheme()">Dev Satisfaction</span>
-    <div class="w-2 h-24 rounded-full overflow-hidden bar-track">
-      <div
-        class="w-full bar-fill bg-gradient-to-t from-orange-500 to-amber-400 rounded-full"
-        [style.height.%]="devSatisfaction()"
-      ></div>
+  <!-- Giant bug: modal overlay with backdrop (clearly separate from laptop) -->
+  @if (freeGiantBug(); as giant) {
+    <div
+      class="giant-bug-overlay fixed inset-0 z-15 flex flex-col items-center justify-center p-4 pointer-events-none"
+      aria-hidden="true"
+    >
+      <div class="giant-bug-backdrop absolute inset-0 bg-black/70"></div>
+      <div class="giant-bug-card relative z-10 flex flex-col items-center justify-center gap-2 sm:gap-3 p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-stone-900/98 border-2 sm:border-4 border-red-500/60 shadow-2xl animate-giant-appear">
+        <span class="giant-bug-emoji animate-bug-wiggle">{{ bugIcon }}</span>
+        <span class="giant-bug-label font-black text-red-400 text-center px-2">{{ giant.typeLabel }}</span>
+        <span class="text-xs sm:text-sm text-amber-400/90">Tap anywhere & drag to fire</span>
+      </div>
     </div>
+  }
+
+  <!-- Left sidebar: one dev icon — reactions spawn on top of him -->
+  <div class="dev-reaction-anchor absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 z-20 flex flex-col items-center">
+    <span class="text-4xl sm:text-5xl drop-shadow-lg" aria-hidden="true">👨‍💻</span>
+    <span class="text-[10px] font-bold text-stone-500 mt-1">dev</span>
   </div>
 
-  <!-- Right bar: Stress Relieved (hidden on very small screens) -->
-  <div class="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-20 hidden sm:flex flex-col items-center gap-2">
-    <span class="text-[10px] font-bold rotate-90 origin-center whitespace-nowrap -mb-1" [class.text-amber-400]="isDarkTheme()" [class.text-amber-600]="!isDarkTheme()">Stress Relieved</span>
-    <div class="w-2 h-24 rounded-full overflow-hidden bar-track">
-      <div
-        class="w-full bar-fill bg-gradient-to-t from-orange-500 to-amber-400 rounded-full"
-        [style.height.%]="stressRelieved()"
-      ></div>
-    </div>
-  </div>
-
-  <div class="flex-1 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 md:gap-12 p-4 sm:p-6 pt-24 sm:pt-20">
+  <div class="flex-1 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 md:gap-12 p-4 sm:p-6 pt-24 sm:pt-20 overflow-visible">
     <!-- Laptop - improved design -->
     <div class="laptop flex flex-col items-center drop-shadow-2xl">
       <!-- Screen lid / bezel -->
@@ -133,20 +158,20 @@
         <!-- Screen -->
         <div
           #screen
-          class="relative w-[min(340px,85vw)] aspect-video bg-slate-950 border-x-8 sm:border-x-[12px] border-b-8 sm:border-b-[12px] overflow-hidden laptop-screen touch-manipulation"
+          class="relative w-[min(520px,92vw)] aspect-video bg-slate-950 border-x-8 sm:border-x-[12px] border-b-8 sm:border-b-[12px] overflow-hidden laptop-screen touch-manipulation"
           [class.border-stone-800]="isDarkTheme()"
           [class.border-stone-400]="!isDarkTheme()"
         >
           @for (item of bugsToRender(); track item.bug.id) {
-            @if (!item.attached) {
+            @if (!item.attached && item.bug.size !== 'giant') {
               <div
-                class="absolute pointer-events-none bug-card"
+                class="absolute pointer-events-none bug-card bug-size-{{ item.bug.size }}"
                 [style.left.%]="item.bug.x"
                 [style.top.%]="item.bug.y"
                 [style.transform]="'translate(-50%, -50%)'"
               >
-                <span class="text-2xl animate-bug-wiggle">{{ item.bug.type.icon }}</span>
-                <span class="text-[8px] text-red-400/90 font-bold block truncate max-w-[60px]">{{ item.bug.type.label }}</span>
+                <span class="animate-bug-wiggle">{{ bugIcon }}</span>
+                <span class="text-red-400/90 font-bold block bug-label text-center whitespace-normal break-words">{{ item.bug.typeLabel }}</span>
               </div>
             }
           }
@@ -183,40 +208,150 @@
       </div>
     </div>
 
-    <!-- Fire pit with sticks -->
+    <!-- Destruction zone (fire / water / void / ice) -->
     <div
       #tub
-      class="fire-pit flex flex-col items-center"
+      class="fire-pit flex flex-col items-center effect-size-{{ effectSize() }} overflow-visible"
     >
-      <div class="fire-container relative">
-        <div class="fire-sticks">
-          <span class="stick stick-1">🪵</span>
-          <span class="stick stick-2">🪵</span>
-          <span class="stick stick-3">🪵</span>
-          <span class="stick stick-4">🪵</span>
-          <span class="stick stick-5">🪵</span>
-        </div>
-        <div class="fire-flames">
-          <div class="flame flame-1"></div>
-          <div class="flame flame-2"></div>
-          <div class="flame flame-3"></div>
-          <div class="flame flame-4"></div>
-          <div class="flame flame-5"></div>
-          <div class="flame flame-6"></div>
-          <div class="flame flame-7"></div>
-        </div>
+      <div class="effect-container relative" [class.effect-fire]="effectType() === 'fire'" [class.effect-water]="effectType() === 'water'" [class.effect-void]="effectType() === 'void'" [class.effect-ice]="effectType() === 'ice'">
+        @if (effectType() === 'fire') {
+          <div class="fire-sticks">
+            <span class="stick stick-1">🪵</span>
+            <span class="stick stick-2">🪵</span>
+            <span class="stick stick-3">🪵</span>
+            <span class="stick stick-4">🪵</span>
+            <span class="stick stick-5">🪵</span>
+          </div>
+          <div class="fire-flames">
+            <div class="flame flame-1"></div>
+            <div class="flame flame-2"></div>
+            <div class="flame flame-3"></div>
+            <div class="flame flame-4"></div>
+            <div class="flame flame-5"></div>
+            <div class="flame flame-6"></div>
+            <div class="flame flame-7"></div>
+          </div>
+          @if (isBugInEffect()) {
+            <div class="effect-particles effect-particles-fire" aria-hidden="true">
+              <div class="fire-smoke smoke-1"></div>
+              <div class="fire-smoke smoke-2"></div>
+              <div class="fire-smoke smoke-3"></div>
+              <div class="ash ash-1"></div>
+              <div class="ash ash-2"></div>
+              <div class="ash ash-3"></div>
+              <div class="ash ash-4"></div>
+              <div class="ash ash-5"></div>
+              <div class="ash ash-6"></div>
+              <div class="ash ash-7"></div>
+              <div class="ash ash-8"></div>
+              <div class="ash ash-9"></div>
+              <div class="ash ash-10"></div>
+              <div class="ash ash-11"></div>
+              <div class="ash ash-12"></div>
+            </div>
+          }
+        }
+        @if (effectType() === 'water') {
+          <div class="water-basin"></div>
+          <div class="water-waves">
+            <div class="wave wave-1"></div>
+            <div class="wave wave-2"></div>
+            <div class="wave wave-3"></div>
+            <div class="wave wave-4"></div>
+            <div class="wave wave-5"></div>
+            <div class="bubble bubble-1"></div>
+            <div class="bubble bubble-2"></div>
+            <div class="bubble bubble-3"></div>
+            <div class="bubble bubble-4"></div>
+          </div>
+          @if (isBugInEffect()) {
+            <div class="effect-particles effect-particles-water" aria-hidden="true">
+              <div class="splash-dot sd-1"></div>
+              <div class="splash-dot sd-2"></div>
+              <div class="splash-dot sd-3"></div>
+              <div class="splash-dot sd-4"></div>
+              <div class="splash-dot sd-5"></div>
+              <div class="splash-dot sd-6"></div>
+              <div class="splash-ring splash-ring-1"></div>
+              <div class="splash-ring splash-ring-2"></div>
+            </div>
+          }
+        }
+        @if (effectType() === 'void') {
+          <div class="void-hole"></div>
+          <div class="void-particles">
+            <div class="void-particle p1"></div>
+            <div class="void-particle p2"></div>
+            <div class="void-particle p3"></div>
+            <div class="void-particle p4"></div>
+            <div class="void-particle p5"></div>
+          </div>
+          @if (isBugInEffect()) {
+            <div class="effect-particles effect-particles-void" aria-hidden="true">
+              <div class="void-dust vd-1"></div>
+              <div class="void-dust vd-2"></div>
+              <div class="void-dust vd-3"></div>
+              <div class="void-dust vd-4"></div>
+              <div class="void-dust vd-5"></div>
+              <div class="void-dust vd-6"></div>
+              <div class="void-dust vd-7"></div>
+            </div>
+          }
+        }
+        @if (effectType() === 'ice') {
+          <div class="ice-block"></div>
+          <div class="ice-crystals">
+            <div class="crystal c1"></div>
+            <div class="crystal c2"></div>
+            <div class="crystal c3"></div>
+            <div class="crystal c4"></div>
+            <div class="crystal c5"></div>
+            <div class="frost-ring"></div>
+          </div>
+          @if (isBugInEffect()) {
+            <div class="effect-particles effect-particles-ice" aria-hidden="true">
+              <div class="frost-flake ff-1"></div>
+              <div class="frost-flake ff-2"></div>
+              <div class="frost-flake ff-3"></div>
+              <div class="frost-flake ff-4"></div>
+              <div class="frost-flake ff-5"></div>
+              <div class="frost-flake ff-6"></div>
+              <div class="frost-flake ff-7"></div>
+              <div class="frost-flake ff-8"></div>
+            </div>
+          }
+        }
       </div>
       <p class="text-[10px] mt-2 font-bold" [class.text-stone-500]="isDarkTheme()" [class.text-stone-600]="!isDarkTheme()">HOLD BUG HERE</p>
       @if (isMobile()) {
-        <p class="text-[9px] mt-1 text-amber-400/80">Tap bug → drag above finger to fire</p>
+        <p class="text-[9px] mt-1 text-amber-400/80">Tap bug → drag above finger to effect</p>
       }
     </div>
+
+    <!-- Bug health: right of fire only when dragging a bug -->
+    @if (currentAttachedBug(); as attached) {
+      <div class="flex flex-col items-center gap-2 shrink-0">
+        <div class="flex flex-col items-center gap-1">
+          <span class="text-2xl">{{ bugIcon }}</span>
+          <span class="text-xs font-bold text-amber-400 text-center max-w-[140px] sm:max-w-[100px] whitespace-normal break-words leading-tight" [title]="attached.bug.typeLabel">{{ attached.bug.typeLabel }}</span>
+        </div>
+        <span class="text-sm font-bold text-amber-400 whitespace-nowrap">Bug health</span>
+        <div class="bug-health-sidebar w-7 sm:w-10 h-44 sm:h-64 rounded-xl overflow-hidden bar-track border-2 border-stone-600 bg-stone-800/90 flex flex-col justify-end shadow-xl">
+          <div
+            class="w-full bar-fill min-h-[6px] rounded-b-lg"
+            [class]="attached.health <= 30 ? 'bg-gradient-to-t from-red-600 to-red-400' : 'bg-gradient-to-t from-emerald-600 to-amber-400'"
+            [style.height.%]="attached.health"
+          ></div>
+        </div>
+        <span class="text-base font-bold tabular-nums text-stone-200">{{ (attached.health | number:'1.0-0') }}%</span>
+      </div>
+    }
   </div>
 
-  <!-- Floating laugh emojis -->
+  <!-- LOL reactions: above laptop, rise to top -->
   @for (e of laughEmojis(); track e.id) {
     <div
-      class="absolute pointer-events-none z-30 laugh-emoji text-2xl"
+      class="absolute pointer-events-none z-30 laugh-emoji laugh-emoji-big laugh-to-top"
       [style.left.%]="e.x"
       [style.top.%]="e.y"
       style="transform: translate(-50%, -50%);"
@@ -225,32 +360,24 @@
     </div>
   }
 
-  <!-- Attached bugs + health bars (floating layer) -->
+  <!-- Attached bugs + "Fixing buggg..." when dying -->
   @if (attachedBugs().length > 0) {
     <div class="absolute inset-0 pointer-events-none z-10">
       @for (item of bugsToRender(); track item.bug.id) {
         @if (item.attached) {
           <div
-            class="absolute -translate-x-1/2 -translate-y-full flex flex-col items-center"
+            class="absolute -translate-x-1/2 -translate-y-full flex flex-col items-center gap-1"
             [style.left.%]="item.x"
             [style.top.%]="item.y"
           >
-            <!-- Health bar with dying percentage -->
-            <div class="mb-1 flex flex-col items-center">
-              <span class="text-[9px] font-bold tabular-nums mb-0.5" [class.text-red-400]="item.health <= 30" [class.text-amber-400]="item.health > 30">
-                {{ item.health <= 30 ? 'DYING' : 'Health' }}: {{ item.health | number:'1.0-0' }}%
-              </span>
-              <div class="w-20 h-2.5 bg-stone-800 rounded-full overflow-hidden border border-stone-600 bar-track">
-                <div
-                  class="h-full rounded-full bar-fill min-w-[2px]"
-                  [class]="item.health <= 30 ? 'bg-gradient-to-r from-red-600 to-red-400' : 'bg-gradient-to-r from-amber-500 to-emerald-500'"
-                  [style.width.%]="item.health"
-                ></div>
+            @if (item.health < 100 && item.health > 0) {
+              <div class="fixing-bug-text fixing-dots bug-dying-glow px-2 py-1 rounded-lg bg-amber-500/10 border border-amber-400/30">
+                Fixing buggg
               </div>
-            </div>
-            <div class="bug-card flex flex-col items-center">
-              <span class="text-2xl">{{ item.bug.type.icon }}</span>
-              <span class="text-[8px] text-red-400/90 font-bold truncate max-w-[60px]">{{ item.bug.type.label }}</span>
+            }
+            <div class="bug-card flex flex-col items-center bug-size-{{ item.bug.size }}" [class.bug-dying-glow]="item.health < 100 && item.health > 0">
+              <span>{{ bugIcon }}</span>
+              <span class="text-red-400/90 font-bold bug-label text-center whitespace-normal break-words">{{ item.bug.typeLabel }}</span>
             </div>
           </div>
         }
