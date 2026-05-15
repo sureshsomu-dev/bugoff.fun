@@ -1,6 +1,17 @@
-# BugoffFun
+# Bugoff.fun 🐛🔨
+
+**Revenge is a dish best served... squashed.**
+
+## About the Project
+Bugoff.fun is a stress-relief game designed for developers, by a developer. We've all been there: staring at a screen full of stack traces, cryptic error messages, and bugs that seem to multiply every time you fix one. Bugoff.fun turns that frustration into pure, unadulterated fun. 
+
+## Our Mission
+Our mission is simple: **To provide a cathartic outlet for every frustrated developer who has ever wanted to literally smash a bug to death.** Through fast-paced, satisfying gameplay, we help you take revenge on those pesky lines of code that keep you up at night. It's time to stop debugging and start destroying.
+
+---
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.1.3.
+
 
 ## Development server
 
