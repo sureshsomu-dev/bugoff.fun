@@ -420,6 +420,9 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
     if (e.touches.length) {
       this.mouseX.set(e.touches[0].clientX);
       this.mouseY.set(e.touches[0].clientY);
+      if (this.isDragging() && this.attachedBugs().length > 0) {
+        e.preventDefault();
+      }
     }
   }
 
@@ -771,7 +774,21 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
     this.onPointerUp();
   }
 
+  /** True if the touch is on a button/nav/modal so we must not preventDefault (Chrome needs this to fire click). */
+  private isInteractiveTouchTarget(target: EventTarget | null): boolean {
+    if (!target || !(target instanceof Element)) return false;
+    const el = target as Element;
+    return !!(
+      el.closest('button') ||
+      el.closest('a') ||
+      el.closest('[role="button"]') ||
+      el.closest('.floating-nav') ||
+      el.closest('.modal')
+    );
+  }
+
   onTouchStart(e: TouchEvent): void {
+    if (this.isInteractiveTouchTarget(e.target)) return;
     e.preventDefault();
     if (e.touches.length) {
       const t = e.touches[0];
@@ -782,6 +799,8 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   onTouchEnd(e: TouchEvent): void {
+    const wasDragging = this.isDragging() || this.attachedBugs().length > 0;
+    if (!wasDragging && this.isInteractiveTouchTarget(e.target)) return;
     e.preventDefault();
     if (e.changedTouches.length) {
       this.onPointerUp();
@@ -791,6 +810,8 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   onTouchCancel(e: TouchEvent): void {
+    const wasDragging = this.isDragging() || this.attachedBugs().length > 0;
+    if (!wasDragging && this.isInteractiveTouchTarget(e.target)) return;
     e.preventDefault();
     this.onPointerUp();
   }

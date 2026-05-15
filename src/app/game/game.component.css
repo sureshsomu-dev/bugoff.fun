@@ -832,7 +832,12 @@
   letter-spacing: -0.02em;
 }
 
-.floating-nav {
+/* Allow tap-to-click in Chrome: override parent touch-action: none */
+.floating-nav,
+.floating-nav *,
+.modal,
+.modal * {
+  touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
 
